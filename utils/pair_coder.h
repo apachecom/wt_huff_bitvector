@@ -9,6 +9,12 @@
 #include <sys/param.h>
 #include <int_vector.hpp>
 
+
+using namespace std::chrono;
+using timer = std::chrono::high_resolution_clock;
+
+
+
 template < uint16_t t_b = 63 >
 class pair_coder {
 
@@ -30,10 +36,55 @@ class pair_coder {
             for (int i = 0; i < t_b+1 ; ++i) {
                 delete K[i];
             }
-
             delete K;
 
         }
+
+        std::pair<uint, uint> encode(uint64_t &v_t)
+        {
+            auto c = sdsl::bits::cnt(v_t);
+            uint off = 0;
+            uint c_t = c;
+            uint jj = 0;
+
+            uint64_t v = v_t;
+            while(0 < c_t && c_t <= t_b-jj)
+            {
+                if((v & 1) == 1)
+                {
+                    if(t_b-jj-1 >= c_t)
+                        off += K[t_b-jj-1][c_t];
+                    c_t--;
+
+                }
+                v = v >> 1;
+                jj++;
+            }
+            return std::make_pair(c,off+1);
+        }
+
+
+        uint64_t decode_int(uint &_c,  uint &_off)
+        {
+            uint64_t c = _c;
+            uint64_t off = _off;
+            uint64_t q = 0;
+            uint64_t j = 0;
+            while ( c )
+            {
+                uint64_t C = (t_b-j-1 >= c)? K[t_b-j-1][c]:0;
+                if(off-1 >= C)
+                {
+                    q = q | (1 << j);
+                    off-= C;
+                    c--;
+                }
+                j++;
+            }
+            return q;
+        }
+
+
 
         std::pair<uint, uint> encode(sdsl::bit_vector::iterator i, sdsl::bit_vector::iterator j){
             assert(j > i);
@@ -65,7 +116,7 @@ class pair_coder {
 
         };
 
-        std::pair<uint, uint> encode(sdsl::bit_vector b){
+        std::pair<uint, uint> encode(const sdsl::bit_vector &b){
 
             assert(b.size()==t_b);
 
@@ -74,11 +125,12 @@ class pair_coder {
                 c += b[i];
             }
 
-            uint off = 0;
-            uint c_t = c;
-            uint j = 0;
-            while(0 < c_t && c_t <= t_b-j){
-                if(b[j]){
+            uint off = 0, c_t = c, j = 0;
+
+            while(0 < c_t && c_t <= t_b-j)
+            {
+                if(b[j])
+                {
                     if(t_b-j-1 >= c_t)
                         off += K[t_b-j-1][c_t];
                     c_t--;
@@ -87,25 +139,73 @@ class pair_coder {
             }
 
             return std::make_pair(c,off+1);
-        };
+        }
 
-        sdsl::bit_vector decode(uint c, uint off){
+        void decode(unsigned char &_c,  uint &_off, sdsl::bit_vector& B){
 
-            assert(c <= t_b);
+            unsigned char c = _c;
+            uint off = _off;
 
-            sdsl::bit_vector B(t_b);
             uint j = 0;
             while ( c ){
                 uint C = (t_b-j-1 >= c)? K[t_b-j-1][c]:0;
-                    if(off-1 >= C){
+                if(off-1 >= C){
+                    B[j] = 1;
+                    off-= C;
+                    c--;
+                }
+
+                j++;
+            }
+
+/*
+            ///B = sdsl::bit_vector(t_b,0);
+            uint j = 0;
+
+            ///auto start = timer::now();
+            while ( c > 0 )
+            {
+                size_t C = (t_b-j-1 >= c)? K[t_b-j-1][c]:0;
+                    if(off-1 >= C)
+                    {
                         B[j] = 1;
                         off-= C;
                         c--;
-                }
+                    }
                 j++;
             }
+            */
+            ///auto stop = timer::now();
+            ///std::cout<<"decode\t\t\t"<<duration_cast<nanoseconds>(stop - start).count()<<std::endl;
+        }
+
+        sdsl::bit_vector decode(uint &_c,  uint &_off){
+
+            sdsl::bit_vector B(t_b,0);
+
+            unsigned char c = _c;
+            uint off = _off;
+
+            uint j = 0;
+            while ( c ){
+                uint C = (t_b-j-1 >= c)? K[t_b-j-1][c]:0;
+                if(off-1 >= C){
+                    B[j] = 1;
+                    off-= C;
+                    c--;
+                }
+
+                j++;
+            }
+
             return B;
-        };
+
+        }
+
+        double size_in_mb()
+        {
+            return   sizeof(long)*(1.0*t_b/1024)*(1.0*t_b/1024);
+        }
 
     private:
 
