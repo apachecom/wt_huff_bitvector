@@ -122,6 +122,9 @@ BENCHMARK(create_input_test_files)->Args({2000000000,10})->Unit(benchmark::kMill
 BENCHMARK(create_input_test_files)->Args({2000000000,11})->Unit(benchmark::kMillisecond);
 BENCHMARK(create_input_test_files)->Args({2000000000,12})->Unit(benchmark::kMillisecond);*/
 
+
+
+
 /*
 BENCHMARK(build_bitvectors)->Args({2000000000,0 ,4})->Unit(benchmark::kMillisecond);
 BENCHMARK(build_bitvectors)->Args({2000000000,1 ,4})->Unit(benchmark::kMillisecond);

@@ -55,10 +55,42 @@ void perform_rank_sd(benchmark::State& state)
 
 
 
+void perform_access_hf(benchmark::State& state)
+{
+    srand (time(NULL));
+    for (auto _ : state) {
+        hf_v[X[rand()%X.size()]];
+    }
+}
+
+void perform_access_rrr(benchmark::State& state)
+{
+    srand (time(NULL));
+    for (auto _ : state) {
+        rrr_v[X[rand()%X.size()]];
+    }
+}
+
+void perform_access_sd(benchmark::State& state)
+{
+    srand (time(NULL));
+    for (auto _ : state) {
+        sd_v[X[rand()%X.size()]];
+    }
+}
+
+
+
+
+
+
+
 BENCHMARK(perform_rank_hf)->Unit(benchmark::kNanosecond);
 BENCHMARK(perform_rank_rrr)->Unit(benchmark::kNanosecond);
 BENCHMARK(perform_rank_sd)->Unit(benchmark::kNanosecond);
-
+BENCHMARK(perform_access_hf)->Unit(benchmark::kNanosecond);
+BENCHMARK(perform_access_rrr)->Unit(benchmark::kNanosecond);
+BENCHMARK(perform_access_sd)->Unit(benchmark::kNanosecond);
 
 
 int main (int argc, char *argv[] ){
