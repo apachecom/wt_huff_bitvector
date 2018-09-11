@@ -31,7 +31,7 @@ static void encode_decode(benchmark::State& state)
     for (auto _ : state)
     {
         srand (time(NULL));
-        pair_coder<64>coder;
+        pair_coder coder(64);
         // encode;
         unsigned long enc_x64 = 0, enc = 0;
         for (int i = 0; i < points ; ++i) {

@@ -84,6 +84,8 @@ cxx_test_with_flags(huff_vector_test "" "${LIBS};sdsl" tests/huff_vector_test.cp
 
 cxx_executable_with_flags(bm_time_space "" "${LIBS};benchmark;sdsl;divsufsort;divsufsort64" benchmark/huff_time_and_space.cpp.cpp    ${SOURCE_FILES})
 cxx_executable_with_flags(pair_code_bm  "" "${LIBS};benchmark;sdsl;divsufsort;divsufsort64" benchmark/pair_code_bm.cpp    ${SOURCE_FILES})
+cxx_executable_with_flags(huff_build  "" "${LIBS};benchmark;sdsl;divsufsort;divsufsort64" benchmark/huff_build.cpp    ${SOURCE_FILES})
+cxx_executable_with_flags(huff_perform  "" "${LIBS};benchmark;sdsl;divsufsort;divsufsort64" benchmark/huff_perform.cpp    ${SOURCE_FILES})
 
 target_link_libraries(CDSProject sdsl)
 target_link_libraries(CDSProject divsufsort)

@@ -4,34 +4,77 @@
 
 #include <gtest/gtest.h>
 #include <fstream>
-#include <wavelet_trees.hpp>
+#include <sdsl/wavelet_trees.hpp>
+#include "../utils/pair_coder.h"
+
+using namespace std::chrono;
+using timer = std::chrono::high_resolution_clock;
 
 class t_wt_huff:public ::testing::Test {
 
 
 protected:
 
-    sdsl::wt_blcd < sdsl::rrr_vector<> > W;
+    sdsl::wt_huff<>  W;
 
     void SetUp() override {
-        sdsl::construct_im(W,"tobeornottobethatisthequestion",1);
+        /*srand (time(NULL));
+        size_t p = rand() % W.size();
+        std::string s;
+        std::string alp = "abcdefghijklmnopqrstuvwxyz*+-";
+
+        for (int i = 0; i < 10000000; ++i)
+        {
+            s+= alp[rand() % alp.length()];
+        }*/
+
+        sdsl::construct(W,"seq620000000",1);
+        std::cout<<"W size "<<W.size()<<std::endl;
+        std::cout<<"W sigma "<<W.sigma<<std::endl;
     }
 
 };
+TEST_F(t_wt_huff,dfs){
+
+    srand (time(NULL));
+    pair_coder coder(32);
+
+    double mean = 0;
+    for (int i = 0; i < 1000000; ++i) {
+        auto start = timer::now();
+        size_t p = rand() % W.size();
+        W.dfs(W.root(),p,[&coder](const uint64_t & node, const uint64_t &  off){
+
+
+            ///coder.decode_int(node,1);
+        });
+        auto stop = timer::now();
+        mean += (duration_cast<nanoseconds>(stop - start).count())*1.0/1000000;
+    }
+
+    std::cout<<"mean dfs: "<<mean<<std::endl;
+
+
+}
 
 TEST_F(t_wt_huff,rank){
 
     std::cout<<std::endl;
 
     std::cout<<"RANK FOR e"<<std::endl;
-
-    for (int i = 0; i < W.size(); ++i) {
-        std::cout<<W.rank(i,'e')<<" ";
+    double mean = 0;
+    for (int i = 0; i < 1000000; ++i) {
+        auto start = timer::now();
+        size_t p = rand() % W.size();
+        W.rank(p,'e');
+        auto stop = timer::now();
+        mean += (duration_cast<nanoseconds>(stop - start).count())*1.0/1000000;
     }
 
-    std::cout<<std::endl;
+    std::cout<<"mean rank: "<<mean<<std::endl;
 
 }
+/*
 TEST_F(t_wt_huff,root){
 
     std::cout<<std::endl;
@@ -99,3 +142,4 @@ TEST_F(t_wt_huff,expand){
     std::cout<<std::endl;
 
 }
+ */

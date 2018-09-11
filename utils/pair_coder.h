@@ -15,28 +15,39 @@ using timer = std::chrono::high_resolution_clock;
 
 
 
-template < uint16_t t_b = 63 >
 class pair_coder {
 
     public:
 
-        pair_coder(){
+        pair_coder() = default;
 
-            K  = new unsigned long*[t_b+1];
+        pair_coder(const uint8_t &block){
 
-            for (int i = 0; i <= t_b; ++i) {
-                K[i] =  new unsigned long[t_b+1];
+            t_b = block;
+
+            K.resize(t_b+1);
+            for (auto &&item : K) {
+                item.resize(t_b+1);
             }
 
             buildCoeff();
 
 
         };
+
         ~pair_coder(){
-            for (int i = 0; i < t_b+1 ; ++i) {
-                delete K[i];
+
+            for (int i = 0; i < K.size() ; ++i) {
+                K[i].clear();
             }
-            delete K;
+            K.clear();
+
+        }
+
+        pair_coder&operator=(const pair_coder& P)
+        {
+            t_b = P.t_b;
+            K = P.K;
 
         }
 
@@ -64,7 +75,7 @@ class pair_coder {
         }
 
 
-        uint64_t decode_int(uint &_c,  uint &_off)
+        uint64_t decode_int(const uint &_c,  const uint &_off)
         {
             uint64_t c = _c;
             uint64_t off = _off;
@@ -204,12 +215,18 @@ class pair_coder {
 
         double size_in_mb()
         {
-            return   sizeof(long)*(1.0*t_b/1024)*(1.0*t_b/1024);
+            return   (sizeof(long)*1.0)*(t_b/1024)*(1.0*t_b/1024);
+        }
+
+        unsigned long  size_in_bytes()
+        {
+            return  sizeof(long)*t_b*t_b;
         }
 
     private:
+        uint8_t t_b;
 
-        unsigned long **K;
+        std::vector<std::vector<unsigned long> > K;
 
         void buildCoeff(){
 

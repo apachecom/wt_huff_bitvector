@@ -11,11 +11,11 @@ class t_pair_coder:public ::testing::Test {
 
 protected:
 
-    pair_coder<4> coder;
+    pair_coder coder;
     t_pair_coder() = default;
-
-
-    void SetUp() override {};
+    void SetUp() override {
+        coder = pair_coder(4);
+    };
 
 };
 
